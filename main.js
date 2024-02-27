@@ -1,13 +1,13 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 
 
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 150);
 camera.position.z = 0;
 camera.lookAt(0, 0, -10000);
 scene.add(camera);
@@ -15,6 +15,10 @@ scene.add(camera);
 
 //Game Controller Integration
 let controllerIndex = null;
+let leftPressed = false;
+let rightPressed = false;
+let upPressed = false;
+let downPressed = false;
 
 //Game Pad Connection
 window.addEventListener("gamepadconnected", (event) => {
@@ -34,24 +38,54 @@ function handleButtons(buttons) {
     for (let i = 0; i < buttons.length; i++) {
         const button = buttons[i];
         const buttonElement = document.getElementById(`controller-b${i}`);
-        console.log(buttonElement);
+        //console.log(buttonElement);
     }
 }
 
-//GameLoop for Testing & Detecting Button
-function gameLoop() {
+//Controller Input
+let leftRightValue;
+let upDownValue;
+function controllerInput() {
     if (controllerIndex !== null) {
         const gamepad = navigator.getGamepads()[controllerIndex];
-        handleButtons(gamepad.buttons);
+
+        const buttons = gamepad.buttons;
+        upPressed = buttons[12].pressed;
+        downPressed = buttons[13].pressed;
+        leftPressed = buttons[14].pressed;
+        rightPressed = buttons[15].pressed;
+
+        const stickDeadZone = 0.2;
+        leftRightValue = gamepad.axes[2];
+        //console.log(leftRightValue);
+
+        if (leftRightValue >= stickDeadZone) {
+            rightPressed = true;
+            //console.log(leftRightValue);
+        } else if (leftRightValue <= -stickDeadZone) {
+            leftPressed = true;
+            //console.log(leftRightValue);
+        }
+
+        upDownValue = gamepad.axes[1];
+
+        if (upDownValue >= stickDeadZone) {
+            downPressed = true;
+            //console.log(upDownValue);
+        } else if (upDownValue <= -stickDeadZone) {
+            upPressed = true;
+            //console.log(upDownValue);
+        }
     }
-    requestAnimationFrame(gameLoop);
 }
 
-gameLoop();
+
+
+
 
 
 var yearsTraveled = 0;
-var HUDtext = `Years Traveled: ` + yearsTraveled;
+var HUDtext = "Years Traveled: " + yearsTraveled;
 
 const renderer = new THREE.WebGLRenderer({ antialias: true, });
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -80,17 +114,15 @@ for (let i = 0; i < 10000; i++) {
 }
 
 
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
+//const controls = new OrbitControls(camera, renderer.domElement);
+//controls.enableDamping = true;
 //controls.autoRotate = true;
 
 const ambient = new THREE.AmbientLight();
 scene.add(ambient);
 
 // movement - please calibrate these values
-var ySpeed = 0.2;
-
-
+var ySpeed = 0.2; //Every 1.0 move is 1000 years
 
 
 //Text Attributes
@@ -138,13 +170,17 @@ const font = loader.load(
 
 //creates global version of model
 var Kepler186f;
+var movementYearMultiplier = 200.0;
+var k186ZPosition = (985492.0 / ((1 / ySpeed) * movementYearMultiplier));
+
+console.log(k186ZPosition);
 //load model
 new GLTFLoader()
     .load('Assets/Planets/kepler-186f/kepler_186f-v1.glb',
         function (kepler186) {
             kepler186.scene.scale.set(1, 1, 1);
             Kepler186f = kepler186.scene.getObjectByName('Scene');
-            kepler186.scene.position.set(-1.5, 0, -10);
+            kepler186.scene.position.set(-1.5, 0, -k186ZPosition);
             kepler186.scene.rotation.y = Math.PI / 2;
 
             const model = kepler186.scene.children[0];
@@ -200,7 +236,6 @@ HUDK186Geo = new THREE.Group();
 
 //All Text Generations
 function textGeneration(font) {
-    HUDtext = `Years Traveled: ` + yearsTraveled;
 
 
     //Question Text
@@ -292,9 +327,67 @@ function updateYears() {
 
 }
 
+//For Controller
+function moveCamera() {
+    if (upPressed) { //between -1 and 0
+        camera.position.z += (0.5 * upDownValue * ySpeed);
+        if (yearsTraveled < 0) {
+            yearsTraveled = 0;
+        }
+        if (yearsTraveled >= 0) {
+            yearsTraveled += Math.abs((0.5 * upDownValue * movementYearMultiplier));
+            HUDtext = "Years Traveled: " + Math.round(yearsTraveled);
+        }
+
+        console.log(HUDtext);
+        console.log(camera.position.z);
+    }
+    if (downPressed) { //between 0 and 1
+        camera.position.z += (0.5 * upDownValue * ySpeed);
+        if (yearsTraveled < 0) {
+            yearsTraveled = 0;
+        }
+        if (yearsTraveled >= 0) {
+            yearsTraveled -= Math.abs((0.5 * upDownValue * movementYearMultiplier));
+            HUDtext = "Years Traveled: " + Math.round(yearsTraveled);
+        }
+
+        console.log(HUDtext);
+        console.log(camera.position.z);
+    }
+    if (leftPressed) {
+        // -= Math.abs((leftRightValue * rotationSpeed));
+    }
+    if (rightPressed) {
+        //cube.rotation.y += (leftRightValue * rotationSpeed);
+    }
+    /*  These are all using the axes value paired with the rotationSpeed as a multiplier to create variable speeds based off input.
+        Absolute value is added so direction can reverse (Rules of Math for adding and subtracting positive and negative integers).*/
 
 
+    if (font) {
+        textGeneration(font);
+    }
 
+    //Kepler-186f HUD
+    if (yearsTraveled > 983000 && yearsTraveled < 985000) {
+        if (camera.getObjectByName(HUDK186Geo) == null) {
+            camera.add(HUDK186Geo);
+            //console.log('K186f text has been added');
+        }
+    }
+    if (yearsTraveled < 983000 || yearsTraveled > 985000) {
+        //if (camera.getObjectByName(HUDK186Geo) != null) {
+        camera.remove(HUDK186Geo);
+        //console.log('K186f text has been removed');
+    }
+}
+
+function updateCamera() {
+    moveCamera();
+}
+
+//For Keyboard
 document.addEventListener("keydown", onDocumentKeyDown, false);
 function onDocumentKeyDown(event) {
     var keyCode = event.which;
@@ -304,42 +397,48 @@ function onDocumentKeyDown(event) {
     if (keyCode == 87) { //UP KEY
         camera.position.z -= ySpeed;
         //console.log(camera.position.z); DEBUG
-        yearsTraveled += 100;
-
-
+        yearsTraveled += movementYearMultiplier;
     } else if (keyCode == 83) { //DOWN KEY
         camera.position.z += ySpeed;
         //console.log(camera.position.z); DEBUG
-        yearsTraveled -= 100;
-
-
+        yearsTraveled -= movementYearMultiplier;
     }
 
-
-    if (yearsTraveled > 3800 && yearsTraveled < 5200) {
+    //Kepler-186f HUD
+    if (yearsTraveled > 983000 && yearsTraveled < 985000) {
         if (camera.getObjectByName(HUDK186Geo) == null) {
             camera.add(HUDK186Geo);
             console.log('K186f text has been added');
         }
     }
-    if (yearsTraveled < 3800 || yearsTraveled > 5200) {
+    if (yearsTraveled < 983000 || yearsTraveled > 985000) {
         //if (camera.getObjectByName(HUDK186Geo) != null) {
         camera.remove(HUDK186Geo);
         console.log('K186f text has been removed');
-
     }
-
-
 };
 
 
 function animate() {
     requestAnimationFrame(animate);
+
+    //controls.update();
+    if (controllerIndex !== null) {
+        const gamepad = navigator.getGamepads()[controllerIndex];
+        handleButtons(gamepad.buttons);
+    }
+    controllerInput();
+    if (controllerIndex !== null) {
+        const gamepad = navigator.getGamepads()[controllerIndex];
+        handleButtons(gamepad.buttons);
+    }
     //controls.update();
     renderer.render(scene, camera);
     if (Kepler186f) {
         rotatePlanets();
     }
+
+    updateCamera();
 }
 
 function onWindowResize() {
@@ -348,6 +447,5 @@ function onWindowResize() {
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
 window.addEventListener('resize', onWindowResize, false);
-
 
 animate();

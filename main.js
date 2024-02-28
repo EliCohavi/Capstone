@@ -80,10 +80,6 @@ function controllerInput() {
 }
 
 
-
-
-
-
 var yearsTraveled = 0;
 var HUDtext = "Years Traveled: " + yearsTraveled;
 
@@ -117,9 +113,6 @@ for (let i = 0; i < 10000; i++) {
 //const controls = new OrbitControls(camera, renderer.domElement);
 //controls.enableDamping = true;
 //controls.autoRotate = true;
-
-const ambient = new THREE.AmbientLight();
-scene.add(ambient);
 
 // movement - please calibrate these values
 var ySpeed = 0.2; //Every 1.0 move is 1000 years
@@ -198,18 +191,19 @@ new GLTFLoader()
     );
 ;
 
-function rotatePlanets() {
-    kepler186f.scene.rotation.y += 10;
 
-}
+//Lights
+const light = new THREE.PointLight(0xffffff, 3, 0, 0);
+light.position.set(3, 0, -9.5);
+light.castShadow = true;
+light.receiveShadow = true;
+light.shadow.camera.near = 1;
+light.shadow.camera.far = 10000;
+light.shadow.mapSize.set(1024, 1024);
+scene.add(light);
 
-
-const light = new THREE.PointLight(0xff0000, 1, 100);
-light.position.set(-2, 2, 8);
-//scene.add(light);
-
-const light2 = new THREE.AmbientLight(0xffffff, 0.2);
-//scene.add(light2);
+const light2 = new THREE.AmbientLight(0xffffff, 0.005);
+scene.add(light2);
 
 
 //Text Materials
@@ -217,8 +211,8 @@ let materials;
 
 //Materials For Text
 materials = [
-    new THREE.MeshPhongMaterial({ color: 0xffffff, flatShading: true }), // front
-    new THREE.MeshPhongMaterial({ color: 0xffffff }) // side
+    new THREE.MeshBasicMaterial({ color: 0xffffff, /*flatShading: true*/ }), // front
+    new THREE.MeshBasicMaterial({ color: 0xffffff }) // side
 ];
 
 //Text
@@ -327,6 +321,7 @@ function updateYears() {
 
 }
 
+var rotationSpeed = 0.01;
 //For Controller
 function moveCamera() {
     if (upPressed) { //between -1 and 0
@@ -356,10 +351,10 @@ function moveCamera() {
         console.log(camera.position.z);
     }
     if (leftPressed) {
-        // -= Math.abs((leftRightValue * rotationSpeed));
+        K186f.rotation.y -= Math.abs((leftRightValue * rotationSpeed));
     }
     if (rightPressed) {
-        //cube.rotation.y += (leftRightValue * rotationSpeed);
+        K186f.rotation.y += (leftRightValue * rotationSpeed);
     }
     /*  These are all using the axes value paired with the rotationSpeed as a multiplier to create variable speeds based off input.
         Absolute value is added so direction can reverse (Rules of Math for adding and subtracting positive and negative integers).*/
@@ -418,10 +413,30 @@ function onDocumentKeyDown(event) {
     }
 };
 
+//K186f Texture
+const K186fTexture = new THREE.TextureLoader().load(
+    "Assets/Planets/kepler-186f/textures/Kepler186fTexture.png");
+K186fTexture.wrapS = THREE.RepeatWrapping;
+K186fTexture.wrapT = THREE.RepeatWrapping;
+K186fTexture.repeat.set(1, 1);
+
+const K186fGeo = new THREE.SphereGeometry(2, 64, 64);
+const K186fMat = new THREE.MeshPhysicalMaterial({ map: K186fTexture, color: 0xffffff });
+const K186f = new THREE.Mesh(K186fGeo, K186fMat);
+K186f.position.set(-3, 0, -10);
+K186f.rotation.y = Math.PI / 2;
+K186f.receiveShadow = true;
+K186f.castShadow = true;
+scene.add(K186f);
+
+function rotatePlanets() {
+    K186f.rotation.y += 0.0005;
+
+}
 
 function animate() {
     requestAnimationFrame(animate);
-
+    rotatePlanets();
     //controls.update();
     if (controllerIndex !== null) {
         const gamepad = navigator.getGamepads()[controllerIndex];

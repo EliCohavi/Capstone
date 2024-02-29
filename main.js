@@ -7,8 +7,8 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 150);
-camera.position.z = 0;
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
+camera.position.z = -950;
 camera.lookAt(0, 0, -10000);
 scene.add(camera);
 
@@ -80,8 +80,9 @@ function controllerInput() {
 }
 
 
+
 var yearsTraveled = 0;
-var HUDtext = "Years Traveled: " + yearsTraveled;
+var HUDtext = "Years Traveled: ", yearsTraveled;
 
 const renderer = new THREE.WebGLRenderer({ antialias: true, });
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -164,7 +165,7 @@ const font = loader.load(
 //creates global version of model
 var Kepler186f;
 var movementYearMultiplier = 200.0;
-var k186ZPosition = (985492.0 / ((1 / ySpeed) * movementYearMultiplier));
+var k186ZPosition = -(985492.0 / ((1 / ySpeed) * movementYearMultiplier));
 
 console.log(k186ZPosition);
 //load model
@@ -173,7 +174,7 @@ new GLTFLoader()
         function (kepler186) {
             kepler186.scene.scale.set(1, 1, 1);
             Kepler186f = kepler186.scene.getObjectByName('Scene');
-            kepler186.scene.position.set(-1.5, 0, -k186ZPosition);
+            kepler186.scene.position.set(-1.5, 0, k186ZPosition);
             kepler186.scene.rotation.y = Math.PI / 2;
 
             const model = kepler186.scene.children[0];
@@ -184,7 +185,7 @@ new GLTFLoader()
                 }
             })
 
-            scene.add(kepler186.scene);
+            //scene.add(kepler186.scene);
             //How to catch other meshes of model
 
         }
@@ -193,16 +194,16 @@ new GLTFLoader()
 
 
 //Lights
-const light = new THREE.PointLight(0xffffff, 3, 0, 0);
-light.position.set(3, 0, -9.5);
-light.castShadow = true;
-light.receiveShadow = true;
-light.shadow.camera.near = 1;
-light.shadow.camera.far = 10000;
-light.shadow.mapSize.set(1024, 1024);
-scene.add(light);
+const K186light = new THREE.PointLight(0xffffff, 3, 10, 0);
+K186light.position.set(3, 0, k186ZPosition + 2);
+K186light.castShadow = true;
+K186light.receiveShadow = true;
+K186light.shadow.camera.near = 1;
+K186light.shadow.camera.far = 10000;
+K186light.shadow.mapSize.set(1024, 1024);
+scene.add(K186light);
 
-const light2 = new THREE.AmbientLight(0xffffff, 0.005);
+const light2 = new THREE.AmbientLight(0xffffff, 0.003);
 scene.add(light2);
 
 
@@ -306,20 +307,33 @@ camera.add(HUDYearsGeo);
 
 //HUD Boxes
 const k186BoxGeo = new THREE.BoxGeometry(1.85, .8, 0.01);
-const k186BoxMat = new THREE.MeshStandardMaterial({ color: 0xffffff, transparent: true, opacity: 0.4 });
+const k186BoxMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.4 });
 const k186box = new THREE.Mesh(k186BoxGeo, k186BoxMat);
 k186box.position.x = -0.775;
 k186box.position.y = -0.6;
 k186box.position.z = -1;
 HUDK186Geo.add(k186box);
 
-
-var testYears;
-var testYearsGeo;
+HUDK186Geo.position.x = 3.5;
 
 function updateYears() {
 
 }
+
+//Remap Numbers Function
+function remap(value, istart, istop, ostart, ostop) {
+    // Ensure values are numerical to avoid potential errors
+    value = Number(value);
+    istart = Number(istart);
+    istop = Number(istop);
+    ostart = Number(ostart);
+    ostop = Number(ostop);
+
+    // Perform the mapping calculation
+    return ostart + (ostop - ostart) * ((value - istart) / (istop - istart));
+}
+
+HUDK186Geo.position.x, 
 
 var rotationSpeed = 0.01;
 //For Controller
@@ -331,7 +345,7 @@ function moveCamera() {
         }
         if (yearsTraveled >= 0) {
             yearsTraveled += Math.abs((0.5 * upDownValue * movementYearMultiplier));
-            HUDtext = "Years Traveled: " + Math.round(yearsTraveled);
+            HUDtext = "Years Traveled: ", Math.round(yearsTraveled);
         }
 
         console.log(HUDtext);
@@ -344,7 +358,7 @@ function moveCamera() {
         }
         if (yearsTraveled >= 0) {
             yearsTraveled -= Math.abs((0.5 * upDownValue * movementYearMultiplier));
-            HUDtext = "Years Traveled: " + Math.round(yearsTraveled);
+            HUDtext = "Years Traveled: ", Math.round(yearsTraveled);
         }
 
         console.log(HUDtext);
@@ -365,17 +379,29 @@ function moveCamera() {
     }
 
     //Kepler-186f HUD
-    if (yearsTraveled > 983000 && yearsTraveled < 985000) {
+    if (Math.abs(camera.position.z) > Math.abs(k186ZPosition) - 4 && Math.abs(camera.position.z) < Math.abs(k186ZPosition) + 2) {
         if (camera.getObjectByName(HUDK186Geo) == null) {
             camera.add(HUDK186Geo);
             //console.log('K186f text has been added');
+
         }
     }
-    if (yearsTraveled < 983000 || yearsTraveled > 985000) {
-        //if (camera.getObjectByName(HUDK186Geo) != null) {
+    if (Math.abs(camera.position.z) < Math.abs(k186ZPosition) - 4 || Math.abs(camera.position.z) > Math.abs(k186ZPosition) + 2) {
         camera.remove(HUDK186Geo);
         //console.log('K186f text has been removed');
     }
+
+    if (Math.abs(camera.position.z) > Math.abs(k186ZPosition) - 4 && Math.abs(camera.position.z) < Math.abs(k186ZPosition) - 0.5) {
+        HUDK186Geo.position.x -= Math.abs(upDownValue) * 0.02;
+        console.log('Geo decreases');
+    }
+    if (Math.abs(camera.position.z) < Math.abs(k186ZPosition) + 2 && Math.abs(camera.position.z) > Math.abs(k186ZPosition) + 0.5) {
+        HUDK186Geo.position.x += Math.abs(upDownValue) * 0.02;
+        console.log('Geo increases');
+    }
+
+    HUDK186Geo.position.x = map(Math.abs(camera.position.z),)
+
 }
 
 function updateCamera() {
@@ -400,13 +426,13 @@ function onDocumentKeyDown(event) {
     }
 
     //Kepler-186f HUD
-    if (yearsTraveled > 983000 && yearsTraveled < 985000) {
+    if (camera.position.z > Math.abs(k186ZPosition) - 4 && camera.position.z < Math.abs(k186ZPosition) + 2) {
         if (camera.getObjectByName(HUDK186Geo) == null) {
             camera.add(HUDK186Geo);
             console.log('K186f text has been added');
         }
     }
-    if (yearsTraveled < 983000 || yearsTraveled > 985000) {
+    if (camera.position.z < Math.abs(k186ZPosition) - 4 || camera.position.z > Math.abs(k186ZPosition) + 2) {
         //if (camera.getObjectByName(HUDK186Geo) != null) {
         camera.remove(HUDK186Geo);
         console.log('K186f text has been removed');
@@ -423,7 +449,7 @@ K186fTexture.repeat.set(1, 1);
 const K186fGeo = new THREE.SphereGeometry(2, 64, 64);
 const K186fMat = new THREE.MeshPhysicalMaterial({ map: K186fTexture, color: 0xffffff });
 const K186f = new THREE.Mesh(K186fGeo, K186fMat);
-K186f.position.set(-3, 0, -10);
+K186f.position.set(-3, 0, k186ZPosition);
 K186f.rotation.y = Math.PI / 2;
 K186f.receiveShadow = true;
 K186f.castShadow = true;

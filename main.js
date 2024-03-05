@@ -15,7 +15,7 @@ Link: https://www.youtube.com/watch?v=w_ms_Xe0Jtk
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 20);
-camera.position.z = 0;
+camera.position.z = -800;
 camera.lookAt(0, 0, -10000);
 scene.add(camera);
 
@@ -275,10 +275,18 @@ let g581text;
 let HUDJourneyEndGeo;
 let JourneyEndTextGeo;
 let JourneyEndText;
+let HUDgenerationsGeo;
+let generationsText;
+let generationsTextGeo;
+let HUDhumansGeo;
+let humansText;
+let humansTextGeo;
+let HUDworthGeo;
+let worthText;
+let worthTextGeo;
 
 
 
-var JourneyEndOpacity = 0;
 //add text HUDs
 HUDYearsGeo = new THREE.Group();
 HUDK186Geo = new THREE.Group();
@@ -287,6 +295,9 @@ HUDk22bGeo = new THREE.Group();
 HUDg667Geo = new THREE.Group();
 HUDg581Geo = new THREE.Group();
 HUDJourneyEndGeo = new THREE.Group();
+HUDgenerationsGeo = new THREE.Group();
+HUDhumansGeo = new THREE.Group();
+HUDworthGeo = new THREE.Group();
 
 //All Text Generations
 function textGeneration(font) {
@@ -512,7 +523,7 @@ habitability in the cosmos.`, {
     //Add to hud
     HUDg581Geo.add(g581text);
 
-    const JourneyEndTextMat = new THREE.MeshBasicMaterial({ color: 0xffffff, opacity: JourneyEndOpacity, transparent: true });
+    const JourneyEndTextMat = new THREE.MeshBasicMaterial({ color: 0xffffff, opacity: 0, transparent: true });
 
 
 
@@ -529,7 +540,7 @@ habitability in the cosmos.`, {
         bevelThickness: bevelThickness / 8,
         bevelSize: bevelSize / 8,
         //bevelEnabled: bevelEnabled / 8,
-        opacity: 0,
+
 
     }).center();
 
@@ -543,6 +554,98 @@ habitability in the cosmos.`, {
     //Add to hud
     HUDJourneyEndGeo.add(JourneyEndText);
 
+
+
+    const generationsTextMat = new THREE.MeshBasicMaterial({ color: 0xffffff, opacity: 0, transparent: true });
+
+    //Generations Text
+    generationsTextGeo = new TextGeometry(
+        `43,154 GENERATIONS`, {
+
+        font: font,
+
+        size: size / 5,
+        height: height / 8,
+        curveSegments: curveSegments,
+
+        bevelThickness: bevelThickness / 8,
+        bevelSize: bevelSize / 8,
+        //bevelEnabled: bevelEnabled / 8,
+
+
+    }).center();
+
+    //Text Object Creation
+    generationsText = new THREE.Mesh(generationsTextGeo, generationsTextMat);
+    generationsText.position.x = 0;
+    generationsText.position.y = 0;
+    generationsText.position.z = -1;
+
+
+    //Add to hud
+    HUDgenerationsGeo.add(generationsText);
+
+
+
+    const humansTextMat = new THREE.MeshBasicMaterial({ color: 0xffffff, opacity: 0, transparent: true });
+
+    //Humans Text
+    humansTextGeo = new TextGeometry(
+        /*`HUMANS ARE ONLY 12,000 GENERATIONS`*/"HUMANS HAVE ONLY EXISTED FOR 12,000", {
+
+        font: font,
+
+        size: size / 5,
+        height: height / 8,
+        curveSegments: curveSegments,
+
+        bevelThickness: bevelThickness / 8,
+        bevelSize: bevelSize / 8,
+        //bevelEnabled: bevelEnabled / 8,
+
+
+    }).center();
+
+    //Text Object Creation
+    humansText = new THREE.Mesh(humansTextGeo, humansTextMat);
+    humansText.position.x = 0;
+    humansText.position.y = 0;
+    humansText.position.z = -1;
+
+
+    //Add to hud
+    HUDhumansGeo.add(humansText);
+
+
+
+    const worthTextMat = new THREE.MeshBasicMaterial({ color: 0xffffff, opacity: 0, transparent: true });
+
+    //Worth Text
+    worthTextGeo = new TextGeometry(
+        `IS IT WORTH IT?`, {
+
+        font: font,
+
+        size: size / 5,
+        height: height / 8,
+        curveSegments: curveSegments,
+
+        bevelThickness: bevelThickness / 8,
+        bevelSize: bevelSize / 8,
+        //bevelEnabled: bevelEnabled / 8,
+
+
+    }).center();
+
+    //Text Object Creation
+    worthText = new THREE.Mesh(worthTextGeo, worthTextMat);
+    worthText.position.x = 0;
+    worthText.position.y = 0;
+    worthText.position.z = -1;
+
+
+    //Add to hud
+    HUDworthGeo.add(worthText);
 }
 
 HUDYearsGeo.position.set(1.1, 0.65, 0);
@@ -554,6 +657,10 @@ camera.add(HUDk22bGeo);
 camera.add(HUDg667Geo);
 camera.add(HUDg581Geo);
 camera.add(HUDJourneyEndGeo);
+camera.add(HUDgenerationsGeo);
+camera.add(HUDhumansGeo);
+camera.add(HUDworthGeo);
+
 
 //HUD Boxes
 //K186
@@ -721,12 +828,59 @@ function moveCamera() {
     //JOURNEY END HUD
     if (Math.abs(camera.position.z) > Math.abs(k22bZPostion) + 6 && Math.abs(camera.position.z) < Math.abs(k22bZPostion) + 10) {
         JourneyEndText.material.opacity = remap(Math.abs(camera.position.z), Math.abs(k22bZPostion) + 6, Math.abs(k22bZPostion) + 10, 0, 1);
-        console.log('Opacity is here');
+        //console.log('Opacity is here');
     }
     if (Math.abs(camera.position.z) > Math.abs(k22bZPostion) + 23 && Math.abs(camera.position.z) < Math.abs(k22bZPostion) + 27) {
         JourneyEndText.material.opacity = remap(Math.abs(camera.position.z), Math.abs(k22bZPostion) + 23, Math.abs(k22bZPostion) + 27, 1, 0);
-        console.log('Opacity is gone');
+        //console.log('Opacity is gone');
     }
+    if (Math.abs(camera.position.z) > Math.abs(k22bZPostion) + 27) {
+        //JourneyEndText.material.color = 0x000000;
+        HUDJourneyEndGeo.remove(JourneyEndText);
+    }
+
+    //GENERATIONS HUD
+    if (Math.abs(camera.position.z) > Math.abs(k22bZPostion) + 29 && Math.abs(camera.position.z) < Math.abs(k22bZPostion) + 33) {
+        generationsText.material.opacity = remap(Math.abs(camera.position.z), Math.abs(k22bZPostion) + 29, Math.abs(k22bZPostion) + 33, 0, 1);
+        //console.log('Opacity is here');
+    }
+    if (Math.abs(camera.position.z) > Math.abs(k22bZPostion) + 46 && Math.abs(camera.position.z) < Math.abs(k22bZPostion) + 50) {
+        generationsText.material.opacity = remap(Math.abs(camera.position.z), Math.abs(k22bZPostion) + 46, Math.abs(k22bZPostion) + 50, 1, 0);
+        //console.log('Opacity is gone');
+    }
+    if (Math.abs(camera.position.z) > Math.abs(k22bZPostion) + 50) {
+        //JourneyEndText.material.color = 0x000000;
+        HUDgenerationsGeo.remove(generationsText);
+    }
+
+    //HUMANS HUD
+    if (Math.abs(camera.position.z) > Math.abs(k22bZPostion) + 52 && Math.abs(camera.position.z) < Math.abs(k22bZPostion) + 56) {
+        humansText.material.opacity = remap(Math.abs(camera.position.z), Math.abs(k22bZPostion) + 52, Math.abs(k22bZPostion) + 56, 0, 1);
+        //console.log('Opacity is here');
+    }
+    if (Math.abs(camera.position.z) > Math.abs(k22bZPostion) + 69 && Math.abs(camera.position.z) < Math.abs(k22bZPostion) + 73) {
+        humansText.material.opacity = remap(Math.abs(camera.position.z), Math.abs(k22bZPostion) + 69, Math.abs(k22bZPostion) + 73, 1, 0);
+        //console.log('Opacity is gone');
+    }
+    if (Math.abs(camera.position.z) > Math.abs(k22bZPostion) + 73) {
+        //JourneyEndText.material.color = 0x000000;
+        HUDhumansGeo.remove(humansText);
+    }
+
+    //WORTH HUD
+    if (Math.abs(camera.position.z) > Math.abs(k22bZPostion) + 78 && Math.abs(camera.position.z) < Math.abs(k22bZPostion) + 82) {
+        worthText.material.opacity = remap(Math.abs(camera.position.z), Math.abs(k22bZPostion) + 78, Math.abs(k22bZPostion) + 82, 0, 1);
+        //console.log('Opacity is here');
+    }
+    if (Math.abs(camera.position.z) > Math.abs(k22bZPostion) + 95 && Math.abs(camera.position.z) < Math.abs(k22bZPostion) + 99) {
+        worthText.material.opacity = remap(Math.abs(camera.position.z), Math.abs(k22bZPostion) + 95, Math.abs(k22bZPostion) + 99, 1, 0);
+        //console.log('Opacity is gone');
+    }
+    if (Math.abs(camera.position.z) > Math.abs(k22bZPostion) + 99) {
+        //JourneyEndText.material.color = 0x000000;
+        HUDworthGeo.remove(worthText);
+    }
+
 }
 
 function updateCamera() {
@@ -804,7 +958,8 @@ function onDocumentKeyDown(event) {
         console.log('Opacity is gone');
     }
     if (Math.abs(camera.position.z) > Math.abs(k22bZPostion) + 27) {
-        JourneyEndText.material.color = 0x000000;
+        //JourneyEndText.material.color = 0x000000;
+        HUDJourneyEndGeo.remove(JourneyEndTextGeo);
     }
 };
 

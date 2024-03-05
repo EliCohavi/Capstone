@@ -14,8 +14,8 @@ Link: https://www.youtube.com/watch?v=w_ms_Xe0Jtk
 
 
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
-camera.position.z = 50;
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 20);
+camera.position.z = 0;
 camera.lookAt(0, 0, -10000);
 scene.add(camera);
 
@@ -28,7 +28,7 @@ const audioLoader = new THREE.AudioLoader();
 audioLoader.load('Assets/Audio/Ambient.mp3', function (buffer) {
     ambient.setBuffer(buffer);
     ambient.setLoop(true);
-    ambient.setVolume(0.1);
+    ambient.setVolume(0.025);
 });
 
 let playAmbientBoolean = false;
@@ -109,7 +109,7 @@ function controllerInput() {
 
 
 var yearsTraveled = 0;
-var HUDtext = "Years Traveled: ", yearsTraveled;
+var HUDtext = "Years Traveled: " + yearsTraveled;
 
 const renderer = new THREE.WebGLRenderer({ antialias: true, });
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -132,7 +132,6 @@ for (let i = 0; i < 10000; i++) {
     stars[i].position.x = THREE.MathUtils.randFloatSpread(-20, 20);
     stars[i].position.y = THREE.MathUtils.randFloatSpread(-20, 20);
     stars[i].position.z = THREE.MathUtils.randFloat(100, -1500);
-    //console.log(stars[i].position.z); -- DEBUG
 
     scene.add(stars[i]);
 }
@@ -187,8 +186,11 @@ const font = loader.load(
 
 //creates global version of model
 var movementYearMultiplier = 200.0;
-var k186ZPosition = -(985492.0 / 1000);
-var HD40307ZPosition = -(71354.0 / 1000);
+var k186ZPosition = -(985492.0 / ((1 / zSpeed) * movementYearMultiplier));
+var HD40307ZPosition = -(71354.0 / ((1 / zSpeed) * movementYearMultiplier));
+var k22bZPostion = -(1078839.0 / ((1 / zSpeed) * movementYearMultiplier));
+var g667ZPosition = -(40128 / ((1 / zSpeed) * movementYearMultiplier));
+var g581ZPosition = -(33000 / ((1 / zSpeed) * movementYearMultiplier));
 
 
 //Lights
@@ -209,6 +211,34 @@ HD40307Light.shadow.camera.near = 1;
 HD40307Light.shadow.camera.far = 10000;
 HD40307Light.shadow.mapSize.set(1024, 1024);
 scene.add(HD40307Light);
+
+const k22bLight = new THREE.PointLight(0xffffff, 3, 10, 0);
+k22bLight.position.set(3, 0, k22bZPostion + 3);
+k22bLight.castShadow = true;
+k22bLight.receiveShadow = true;
+k22bLight.shadow.camera.near = 1;
+k22bLight.shadow.camera.far = 10000;
+k22bLight.shadow.mapSize.set(1024, 1024);
+scene.add(k22bLight);
+
+const g667Light = new THREE.PointLight(0xffffff, 3, 10, 0);
+g667Light.position.set(3, 0, g667ZPosition + 3);
+g667Light.castShadow = true;
+g667Light.receiveShadow = true;
+g667Light.shadow.camera.near = 1;
+g667Light.shadow.camera.far = 10000;
+g667Light.shadow.mapSize.set(1024, 1024);
+scene.add(g667Light);
+
+const g581Light = new THREE.PointLight(0xffffff, 3, 10, 0);
+g581Light.position.set(3, 0, g581ZPosition + 3);
+g581Light.castShadow = true;
+g581Light.receiveShadow = true;
+g581Light.shadow.camera.near = 1;
+g581Light.shadow.camera.far = 10000;
+g581Light.shadow.mapSize.set(1024, 1024);
+scene.add(g581Light);
+
 
 const light2 = new THREE.AmbientLight(0xffffff, 0.003);
 scene.add(light2);
@@ -233,6 +263,15 @@ let K186text;
 let HUDHD40307Geo;
 let HD40307textGeo;
 let HD40307text;
+let HUDk22bGeo;
+let k22btextGeo;
+let K22btext;
+let HUDg667Geo;
+let g667textGeo;
+let g667text;
+let HUDg581Geo;
+let g581textGeo;
+let g581text;
 
 
 
@@ -240,6 +279,9 @@ let HD40307text;
 HUDYearsGeo = new THREE.Group();
 HUDK186Geo = new THREE.Group();
 HUDHD40307Geo = new THREE.Group();
+HUDk22bGeo = new THREE.Group();
+HUDg667Geo = new THREE.Group();
+HUDg581Geo = new THREE.Group();
 
 //All Text Generations
 function textGeneration(font) {
@@ -299,7 +341,7 @@ secrets and ponder the vastness of the cosmos.`, {
 
     //Text Object Creation
     K186text = new THREE.Mesh(K186textGeo, materials);
-    K186text.position.x = -0.88;
+    K186text.position.x = -0.8;
     K186text.position.y = -0.6;
     K186text.position.z = -1;
 
@@ -347,6 +389,123 @@ discovery in the vastness of the cosmos.`, {
     HUDHD40307Geo.add(HD40307text);
 
 
+    //Kepler 22b
+    k22btextGeo = new TextGeometry(
+        `Discovered on December 5, 2011, Kepler-22b orbits within
+the Kepler-22 system in the Cygnus constellation, a vast
+635 light-years distant from Earth. With a mass 9.1 times
+that of Earth and a radius 2.1 times larger, Kepler-22b
+poses an intriguing puzzle. It's true nature remains
+elusive due to its immense distance, with speculation
+ranging from rocky to potentially gaseous. Estimates
+suggest its equilibrium temperature is around 6°C, but
+with a greenhouse effect akin to Earth, it could reach
+22°C. Conversely, a Venus-like effect might soar it to a
+blistering 460°C. Despite its allure, a journey to
+Kepler-22b, even at 395,000 mph, would take a daunting
+1,078,839 years.`, {
+
+        font: font,
+
+        size: size / 7,
+        height: height / 8,
+        curveSegments: curveSegments,
+
+        bevelThickness: bevelThickness / 8,
+        bevelSize: bevelSize / 8,
+        //bevelEnabled: bevelEnabled / 8,
+
+    }).center();
+
+    //Text Object Creation
+    K22btext = new THREE.Mesh(k22btextGeo, materials);
+    K22btext.position.x = -0.95;
+    K22btext.position.y = -0.6;
+    K22btext.position.z = -1;
+
+
+    //Add to hud
+    HUDk22bGeo.add(K22btext);
+
+
+    //Gliese 667Cc
+    g667textGeo = new TextGeometry(
+        `Discovered by the ESO/HARPS team on November 21, 2011,
+Gliese 667Cc resides in the Gliese 667C system, part
+of the Scorpius constellation, just 23.62 light-years
+from Earth. With a mass around 3.709 times that of
+Earth and a radius 1.54 times greater, Gliese 667Cc
+stands as a potentially unique world in the cosmos. 
+Situated closer to the inner edge of the
+"Habitability Zone," Gliese 667Cc experiences slightly
+warmer temperatures than other exoplanets. However,
+its status as a tidally-locked planet subject to
+intense tidal heating—300 times that of Earth—raises
+doubts about its habitability Embarking on a journey
+to Gliese 667Cc, even at 395,000 mph, would require
+a staggering 40,128 years.`, {
+
+        font: font,
+
+        size: size / 7,
+        height: height / 8,
+        curveSegments: curveSegments,
+
+        bevelThickness: bevelThickness / 8,
+        bevelSize: bevelSize / 8,
+        //bevelEnabled: bevelEnabled / 8,
+
+    }).center();
+
+    //Text Object Creation
+    g667text = new THREE.Mesh(g667textGeo, materials);
+    g667text.position.x = -0.9;
+    g667text.position.y = -0.6;
+    g667text.position.z = -1;
+
+
+    //Add to hud
+    HUDg667Geo.add(g667text);
+
+
+    //Gliese 581g
+    g581textGeo = new TextGeometry(
+        `Discovered by Steven S. Vogt on September 29, 2010, 
+Gliese 581g resides in the Gliese 581 system,however,
+its existence remains controversial due to challenges
+in confirmation.  Believed to be tidally locked,
+Gliese 581g offers the potential for liquid water
+despite its mysterious nature. With an average global
+equilibrium temperature ranging from 209 to 228 K, it
+could sustain life with Earth-like greenhouse effects,
+resulting in temperatures of -37 to -12°C (-35 to 10°F). 
+Despite the daunting journey—20 lightyears or 33,986
+years at 395,000 mph—Gliese 581g beckons as a
+tantalizing destination, challenging humanity to
+unravel its mysteries and explore the frontiers of
+habitability in the cosmos.`, {
+
+        font: font,
+
+        size: size / 7,
+        height: height / 8,
+        curveSegments: curveSegments,
+
+        bevelThickness: bevelThickness / 8,
+        bevelSize: bevelSize / 8,
+        //bevelEnabled: bevelEnabled / 8,
+
+    }).center();
+
+    //Text Object Creation
+    g581text = new THREE.Mesh(g581textGeo, materials);
+    g581text.position.x = -1;
+    g581text.position.y = -0.6;
+    g581text.position.z = -1;
+
+
+    //Add to hud
+    HUDg581Geo.add(g581text);
 
 }
 
@@ -355,6 +514,9 @@ HUDYearsGeo.position.set(1.1, 0.65, 0);
 camera.add(HUDYearsGeo);
 camera.add(HUDK186Geo);
 camera.add(HUDHD40307Geo);
+camera.add(HUDk22bGeo);
+camera.add(HUDg667Geo);
+camera.add(HUDg581Geo);
 
 //HUD Boxes
 //K186
@@ -376,14 +538,42 @@ HD40307Box.position.x = -0.775;
 HD40307Box.position.y = -0.6;
 HD40307Box.position.z = -1;
 HUDHD40307Geo.add(HD40307Box);
-
 HUDHD40307Geo.position.x = 3.5;
 HUDHD40307Geo.position.y = 0.5;
 
+//K22b
+const k22bBoxGeo = new THREE.BoxGeometry(1.85, .9, 0.01);
+const k22bBoxMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.4 });
+const k22bBox = new THREE.Mesh(k22bBoxGeo, k22bBoxMat);
+k22bBox.position.x = -0.775;
+k22bBox.position.y = -0.6;
+k22bBox.position.z = -1;
+HUDk22bGeo.add(k22bBox);
+HUDk22bGeo.position.x = 3.5;
+HUDk22bGeo.position.y = 0.5;
 
-function updateYears() {
+//g667
+const g667BoxGeo = new THREE.BoxGeometry(1.85, .9, 0.01);
+const g667BoxMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.4 });
+const g667Box = new THREE.Mesh(g667BoxGeo, g667BoxMat);
+g667Box.position.x = -0.775;
+g667Box.position.y = -0.6;
+g667Box.position.z = -1;
+HUDg667Geo.add(g667Box);
+HUDg667Geo.position.x = 3.5;
+HUDg667Geo.position.y = 0.5;
 
-}
+//g581
+const g581BoxGeo = new THREE.BoxGeometry(1.85, .9, 0.01);
+const g581BoxMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.4 });
+const g581Box = new THREE.Mesh(g581BoxGeo, g581BoxMat);
+g581Box.position.x = -0.775;
+g581Box.position.y = -0.6;
+g581Box.position.z = -1;
+HUDg581Geo.add(g581Box);
+HUDg581Geo.position.x = 3.5;
+HUDg581Geo.position.y = 0.5;
+
 
 //Remap Numbers Function
 function remap(value, istart, istop, ostart, ostop) {
@@ -411,7 +601,7 @@ function moveCamera() {
         }
         if (yearsTraveled >= 0) {
             yearsTraveled += Math.abs((0.5 * upDownValue * movementYearMultiplier));
-            HUDtext = "Years Traveled: ", Math.round(yearsTraveled);
+            HUDtext = "Years Traveled: " + Math.round(yearsTraveled);
         }
         console.log(camera.position.z);
 
@@ -423,19 +613,25 @@ function moveCamera() {
         }
         if (yearsTraveled >= 0) {
             yearsTraveled -= Math.abs((0.5 * upDownValue * movementYearMultiplier));
-            HUDtext = "Years Traveled: ", Math.round(yearsTraveled);
+            HUDtext = "Years Traveled: " + Math.round(yearsTraveled);
         }
         console.log(camera.position.z);
-        //console.log(HUDtext);
+
 
     }
     if (leftPressed) {
         K186f.rotation.y -= Math.abs((leftRightValue * rotationSpeed));
         HD40307g.rotation.y -= Math.abs((leftRightValue * rotationSpeed));
+        k22b.rotation.y -= Math.abs((leftRightValue * rotationSpeed));
+        g667.rotation.y -= Math.abs((leftRightValue * rotationSpeed));
+        g581.rotation.y -= Math.abs((leftRightValue * rotationSpeed));
     }
     if (rightPressed) {
         K186f.rotation.y += (leftRightValue * rotationSpeed);
         HD40307g.rotation.y += (leftRightValue * rotationSpeed);
+        k22b.rotation.y += Math.abs((leftRightValue * rotationSpeed));
+        g667.rotation.y += Math.abs((leftRightValue * rotationSpeed));
+        g581.rotation.y += Math.abs((leftRightValue * rotationSpeed));
     }
     /*  These are all using the axes value paired with the rotationSpeed as a multiplier to create variable speeds based off input.
         Absolute value is added so direction can reverse (Rules of Math for adding and subtracting positive and negative integers).*/
@@ -461,6 +657,29 @@ function moveCamera() {
         HUDHD40307Geo.position.x = remap(Math.abs(camera.position.z), Math.abs(HD40307ZPosition), Math.abs(HD40307ZPosition) + 2, 1.4, 3.5);
     }
 
+    //KEPLER22 HUD
+    if (Math.abs(camera.position.z) > Math.abs(k22bZPostion) - 9 && Math.abs(camera.position.z) < Math.abs(k22bZPostion) - 4) {
+        HUDk22bGeo.position.x = remap(Math.abs(camera.position.z), Math.abs(k22bZPostion) - 9, Math.abs(k22bZPostion) - 4, 3.5, 1.4);
+    }
+    if (Math.abs(camera.position.z) > Math.abs(k22bZPostion) && Math.abs(camera.position.z) < Math.abs(k22bZPostion) + 2) {
+        HUDk22bGeo.position.x = remap(Math.abs(camera.position.z), Math.abs(k22bZPostion), Math.abs(k22bZPostion) + 2, 1.4, 3.5);
+    }
+
+    //GLIESE667 HUD
+    if (Math.abs(camera.position.z) > Math.abs(g667ZPosition) - 5 && Math.abs(camera.position.z) < Math.abs(g667ZPosition) - 3) {
+        HUDg667Geo.position.x = remap(Math.abs(camera.position.z), Math.abs(g667ZPosition) - 5, Math.abs(g667ZPosition) - 3, 3.5, 1.4);
+    }
+    if (Math.abs(camera.position.z) > Math.abs(g667ZPosition) + 1 && Math.abs(camera.position.z) < Math.abs(g667ZPosition) + 4) {
+        HUDg667Geo.position.x = remap(Math.abs(camera.position.z), Math.abs(g667ZPosition) + 1, Math.abs(g667ZPosition) + 4, 1.4, 3.5);
+    }
+
+    //GLIESE581 HUD
+    if (Math.abs(camera.position.z) > Math.abs(g581ZPosition) - 9 && Math.abs(camera.position.z) < Math.abs(g581ZPosition) - 6) {
+        HUDg581Geo.position.x = remap(Math.abs(camera.position.z), Math.abs(g581ZPosition) - 9, Math.abs(g581ZPosition) - 6, 3.5, 1.4);
+    }
+    if (Math.abs(camera.position.z) > Math.abs(g581ZPosition) - 3 && Math.abs(camera.position.z) < Math.abs(g581ZPosition)) {
+        HUDg581Geo.position.x = remap(Math.abs(camera.position.z), Math.abs(g581ZPosition) - 3, Math.abs(g581ZPosition), 1.4, 3.5);
+    }
 
 }
 
@@ -477,11 +696,11 @@ function onDocumentKeyDown(event) {
     }
     if (keyCode == 87) { //UP KEY
         camera.position.z -= zSpeed;
-        console.log(camera.position.z);
+        //console.log(camera.position.z);
         yearsTraveled += movementYearMultiplier;
     } else if (keyCode == 83) { //DOWN KEY
         camera.position.z += zSpeed;
-        console.log(camera.position.z);
+        //console.log(camera.position.z);
         yearsTraveled -= movementYearMultiplier;
     }
 
@@ -505,6 +724,29 @@ function onDocumentKeyDown(event) {
         HUDHD40307Geo.position.x = remap(Math.abs(camera.position.z), Math.abs(HD40307ZPosition), Math.abs(HD40307ZPosition) + 2, 1.4, 3.5);
     }
 
+    //KEPLER22 HUD
+    if (Math.abs(camera.position.z) > Math.abs(k22bZPostion) - 9 && Math.abs(camera.position.z) < Math.abs(k22bZPostion) - 4) {
+        HUDk22bGeo.position.x = remap(Math.abs(camera.position.z), Math.abs(k22bZPostion) - 9, Math.abs(k22bZPostion) - 4, 3.5, 1.4);
+    }
+    if (Math.abs(camera.position.z) > Math.abs(k22bZPostion) && Math.abs(camera.position.z) < Math.abs(k22bZPostion) + 2) {
+        HUDk22bGeo.position.x = remap(Math.abs(camera.position.z), Math.abs(k22bZPostion), Math.abs(k22bZPostion) + 2, 1.4, 3.5);
+    }
+
+    //GLIESE667 HUD
+    if (Math.abs(camera.position.z) > Math.abs(g667ZPosition) - 5 && Math.abs(camera.position.z) < Math.abs(g667ZPosition) - 3) {
+        HUDg667Geo.position.x = remap(Math.abs(camera.position.z), Math.abs(g667ZPosition) - 5, Math.abs(g667ZPosition) - 3, 3.5, 1.4);
+    }
+    if (Math.abs(camera.position.z) > Math.abs(g667ZPosition) + 1 && Math.abs(camera.position.z) < Math.abs(g667ZPosition) + 4) {
+        HUDg667Geo.position.x = remap(Math.abs(camera.position.z), Math.abs(g667ZPosition) + 1, Math.abs(g667ZPosition) + 4, 1.4, 3.5);
+    }
+
+    //GLIESE581 HUD
+    if (Math.abs(camera.position.z) > Math.abs(g581ZPosition) - 9 && Math.abs(camera.position.z) < Math.abs(g581ZPosition) - 6) {
+        HUDg581Geo.position.x = remap(Math.abs(camera.position.z), Math.abs(g581ZPosition) - 9, Math.abs(g581ZPosition) - 6, 3.5, 1.4);
+    }
+    if (Math.abs(camera.position.z) > Math.abs(g581ZPosition) - 3 && Math.abs(camera.position.z) < Math.abs(g581ZPosition)) {
+        HUDg581Geo.position.x = remap(Math.abs(camera.position.z), Math.abs(g581ZPosition) - 3, Math.abs(g581ZPosition), 1.4, 3.5);
+    }
 };
 
 //K186f Texture
@@ -539,14 +781,61 @@ HD40307g.receiveShadow = true;
 HD40307g.castShadow = true;
 scene.add(HD40307g);
 
+//k22b Texture
+const k22bTexture = new THREE.TextureLoader().load(
+    "Assets/Planets/kepler-22b/textures/Planet_baseColor.png");
+k22bTexture.wrapS = THREE.RepeatWrapping;
+k22bTexture.wrapT = THREE.RepeatWrapping;
+k22bTexture.repeat.set(1, 1);
 
+const k22bGeo = new THREE.SphereGeometry(3, 64, 64);
+const k22bMat = new THREE.MeshPhysicalMaterial({ map: k22bTexture, color: 0xffffff });
+const k22b = new THREE.Mesh(k22bGeo, k22bMat);
+k22b.position.set(-4, 0, k22bZPostion);
+k22b.rotation.z = Math.PI / 6;
+k22b.receiveShadow = true;
+k22b.castShadow = true;
+scene.add(k22b);
+
+//g667 Texture
+const g667Texture = new THREE.TextureLoader().load(
+    "Assets/Planets/gliese-667cc/textures/g667Texture.png");
+g667Texture.wrapS = THREE.RepeatWrapping;
+g667Texture.wrapT = THREE.RepeatWrapping;
+g667Texture.repeat.set(1, 1);
+
+const g667Geo = new THREE.SphereGeometry(2.5, 64, 64);
+const g667Mat = new THREE.MeshPhysicalMaterial({ map: g667Texture, color: 0xffffff });
+const g667 = new THREE.Mesh(g667Geo, g667Mat);
+g667.position.set(-4, 0, g667ZPosition);
+g667.rotation.z = Math.PI / 6;
+g667.receiveShadow = true;
+g667.castShadow = true;
+scene.add(g667);
+
+//g581 Texture
+const g581Texture = new THREE.TextureLoader().load(
+    "Assets/Planets/gliese-581g/textures/g581Texture.png");
+g581Texture.wrapS = THREE.RepeatWrapping;
+g581Texture.wrapT = THREE.RepeatWrapping;
+g581Texture.repeat.set(1, 1);
+
+const g581Geo = new THREE.SphereGeometry(2.5, 64, 64);
+const g581Mat = new THREE.MeshPhysicalMaterial({ map: g581Texture, color: 0xffffff });
+const g581 = new THREE.Mesh(g581Geo, g581Mat);
+g581.position.set(-4, 0, g581ZPosition);
+g581.rotation.z = Math.PI / 6;
+g581.receiveShadow = true;
+g581.castShadow = true;
+scene.add(g581);
 
 
 function rotatePlanets() {
     K186f.rotation.y += 0.0005;
     HD40307g.rotation.y += 0.0003;
-
-
+    k22b.rotation.y += 0.0005;
+    g667.rotation.y += 0.0005;
+    g581.rotation.y += 0.0005;
 }
 
 
@@ -565,7 +854,8 @@ function animate() {
     }
     //controls.update();
     renderer.render(scene, camera);
-
+    console.log(HUDtext);
+    yearsGeo = new TextGeometry(HUDtext);
     updateCamera();
 }
 

@@ -272,9 +272,13 @@ let g667text;
 let HUDg581Geo;
 let g581textGeo;
 let g581text;
+let HUDJourneyEndGeo;
+let JourneyEndTextGeo;
+let JourneyEndText;
 
 
 
+var JourneyEndOpacity = 0;
 //add text HUDs
 HUDYearsGeo = new THREE.Group();
 HUDK186Geo = new THREE.Group();
@@ -282,6 +286,7 @@ HUDHD40307Geo = new THREE.Group();
 HUDk22bGeo = new THREE.Group();
 HUDg667Geo = new THREE.Group();
 HUDg581Geo = new THREE.Group();
+HUDJourneyEndGeo = new THREE.Group();
 
 //All Text Generations
 function textGeneration(font) {
@@ -310,7 +315,7 @@ function textGeneration(font) {
     years.position.z = -1;
 
     //Add to hud
-    HUDYearsGeo.add(years);
+    //HUDYearsGeo.add(years);
 
 
     //KEPLER 186f
@@ -507,6 +512,37 @@ habitability in the cosmos.`, {
     //Add to hud
     HUDg581Geo.add(g581text);
 
+    const JourneyEndTextMat = new THREE.MeshBasicMaterial({ color: 0xffffff, opacity: JourneyEndOpacity, transparent: true });
+
+
+
+    //Gliese 581g
+    JourneyEndTextGeo = new TextGeometry(
+        `THIS JOURNEY TOOK 1,078,839 YEARS`, {
+
+        font: font,
+
+        size: size / 5,
+        height: height / 8,
+        curveSegments: curveSegments,
+
+        bevelThickness: bevelThickness / 8,
+        bevelSize: bevelSize / 8,
+        //bevelEnabled: bevelEnabled / 8,
+        opacity: 0,
+
+    }).center();
+
+    //Text Object Creation
+    JourneyEndText = new THREE.Mesh(JourneyEndTextGeo, JourneyEndTextMat);
+    JourneyEndText.position.x = 0;
+    JourneyEndText.position.y = 0;
+    JourneyEndText.position.z = -1;
+
+
+    //Add to hud
+    HUDJourneyEndGeo.add(JourneyEndText);
+
 }
 
 HUDYearsGeo.position.set(1.1, 0.65, 0);
@@ -517,6 +553,7 @@ camera.add(HUDHD40307Geo);
 camera.add(HUDk22bGeo);
 camera.add(HUDg667Geo);
 camera.add(HUDg581Geo);
+camera.add(HUDJourneyEndGeo);
 
 //HUD Boxes
 //K186
@@ -603,7 +640,7 @@ function moveCamera() {
             yearsTraveled += Math.abs((0.5 * upDownValue * movementYearMultiplier));
             HUDtext = "Years Traveled: " + Math.round(yearsTraveled);
         }
-        console.log(camera.position.z);
+        //console.log(camera.position.z);
 
     }
     if (downPressed) { //between 0 and 1
@@ -615,7 +652,7 @@ function moveCamera() {
             yearsTraveled -= Math.abs((0.5 * upDownValue * movementYearMultiplier));
             HUDtext = "Years Traveled: " + Math.round(yearsTraveled);
         }
-        console.log(camera.position.z);
+        //console.log(camera.position.z);
 
 
     }
@@ -681,6 +718,15 @@ function moveCamera() {
         HUDg581Geo.position.x = remap(Math.abs(camera.position.z), Math.abs(g581ZPosition) - 3, Math.abs(g581ZPosition), 1.4, 3.5);
     }
 
+    //JOURNEY END HUD
+    if (Math.abs(camera.position.z) > Math.abs(k22bZPostion) + 6 && Math.abs(camera.position.z) < Math.abs(k22bZPostion) + 10) {
+        JourneyEndText.material.opacity = remap(Math.abs(camera.position.z), Math.abs(k22bZPostion) + 6, Math.abs(k22bZPostion) + 10, 0, 1);
+        console.log('Opacity is here');
+    }
+    if (Math.abs(camera.position.z) > Math.abs(k22bZPostion) + 23 && Math.abs(camera.position.z) < Math.abs(k22bZPostion) + 27) {
+        JourneyEndText.material.opacity = remap(Math.abs(camera.position.z), Math.abs(k22bZPostion) + 23, Math.abs(k22bZPostion) + 27, 1, 0);
+        console.log('Opacity is gone');
+    }
 }
 
 function updateCamera() {
@@ -746,6 +792,19 @@ function onDocumentKeyDown(event) {
     }
     if (Math.abs(camera.position.z) > Math.abs(g581ZPosition) - 3 && Math.abs(camera.position.z) < Math.abs(g581ZPosition)) {
         HUDg581Geo.position.x = remap(Math.abs(camera.position.z), Math.abs(g581ZPosition) - 3, Math.abs(g581ZPosition), 1.4, 3.5);
+    }
+
+    //JOURNEY END HUD
+    if (Math.abs(camera.position.z) > Math.abs(k22bZPostion) + 6 && Math.abs(camera.position.z) < Math.abs(k22bZPostion) + 10) {
+        JourneyEndText.material.opacity = remap(Math.abs(camera.position.z), Math.abs(k22bZPostion) + 6, Math.abs(k22bZPostion) + 10, 0, 1);
+        console.log('Opacity is here');
+    }
+    if (Math.abs(camera.position.z) > Math.abs(k22bZPostion) + 23 && Math.abs(camera.position.z) < Math.abs(k22bZPostion) + 27) {
+        JourneyEndText.material.opacity = remap(Math.abs(camera.position.z), Math.abs(k22bZPostion) + 23, Math.abs(k22bZPostion) + 27, 1, 0);
+        console.log('Opacity is gone');
+    }
+    if (Math.abs(camera.position.z) > Math.abs(k22bZPostion) + 27) {
+        JourneyEndText.material.color = 0x000000;
     }
 };
 
@@ -854,7 +913,6 @@ function animate() {
     }
     //controls.update();
     renderer.render(scene, camera);
-    console.log(HUDtext);
     yearsGeo = new TextGeometry(HUDtext);
     updateCamera();
 }

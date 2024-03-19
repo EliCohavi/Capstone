@@ -14,8 +14,8 @@ Link: https://www.youtube.com/watch?v=w_ms_Xe0Jtk
 
 
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 20);
-camera.position.z = -800;
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 50);
+camera.position.z = 0;
 camera.lookAt(0, 0, -10000);
 scene.add(camera);
 
@@ -28,7 +28,7 @@ const audioLoader = new THREE.AudioLoader();
 audioLoader.load('Assets/Audio/Ambient.mp3', function (buffer) {
     ambient.setBuffer(buffer);
     ambient.setLoop(true);
-    ambient.setVolume(0.025);
+    ambient.setVolume(1);
 });
 
 let playAmbientBoolean = false;
@@ -129,8 +129,8 @@ const stars = [];
 for (let i = 0; i < 10000; i++) {
     stars[i] = new THREE.Mesh(starGeometry, starMaterial);
 
-    stars[i].position.x = THREE.MathUtils.randFloatSpread(-20, 20);
-    stars[i].position.y = THREE.MathUtils.randFloatSpread(-20, 20);
+    stars[i].position.x = THREE.MathUtils.randFloatSpread(-50, 50);
+    stars[i].position.y = THREE.MathUtils.randFloatSpread(-50, 50);
     stars[i].position.z = THREE.MathUtils.randFloat(100, -1500);
 
     scene.add(stars[i]);
@@ -138,7 +138,7 @@ for (let i = 0; i < 10000; i++) {
 
 
 // movement - please calibrate these values
-var zSpeed = 0.15;
+var zSpeed = 0.50;
 
 
 //Text Attributes
@@ -186,11 +186,18 @@ const font = loader.load(
 
 //creates global version of model
 var movementYearMultiplier = 200.0;
-var k186ZPosition = -(985492.0 / ((1 / zSpeed) * movementYearMultiplier));
-var HD40307ZPosition = -(71354.0 / ((1 / zSpeed) * movementYearMultiplier));
-var k22bZPostion = -(1078839.0 / ((1 / zSpeed) * movementYearMultiplier));
-var g667ZPosition = -(40128 / ((1 / zSpeed) * movementYearMultiplier));
 var g581ZPosition = -(33000 / ((1 / zSpeed) * movementYearMultiplier));
+var g667ZPosition = -((40128 + 100000) / ((1 / zSpeed) * movementYearMultiplier));
+var HD40307ZPosition = -((71354.0 + 200000) / ((1 / zSpeed) * movementYearMultiplier));
+var k186ZPosition = -((985492.0 - 600000) / ((1 / zSpeed) * movementYearMultiplier));
+var k22bZPostion = -((1078839.0 - 600000) / ((1 / zSpeed) * movementYearMultiplier));
+
+
+console.log(g581ZPosition);
+console.log(g667ZPosition);
+console.log(HD40307ZPosition);
+console.log(k186ZPosition);
+console.log(k22bZPostion);
 
 
 //Lights
@@ -622,7 +629,7 @@ habitability in the cosmos.`, {
 
     //Worth Text
     worthTextGeo = new TextGeometry(
-        `IS IT WORTH IT?`, {
+        `WAS IT WORTH IT?`, {
 
         font: font,
 
@@ -739,6 +746,7 @@ var rotationSpeed = 0.01;
 //For Controller
 function moveCamera() {
     if (upPressed) { //between -1 and 0
+        playAmbient();
         camera.position.z += (0.5 * upDownValue * zSpeed);
         if (yearsTraveled < 0) {
             yearsTraveled = 0;
@@ -747,7 +755,7 @@ function moveCamera() {
             yearsTraveled += Math.abs((0.5 * upDownValue * movementYearMultiplier));
             HUDtext = "Years Traveled: " + Math.round(yearsTraveled);
         }
-        //console.log(camera.position.z);
+        console.log(camera.position.z);
 
     }
     if (downPressed) { //between 0 and 1
@@ -759,7 +767,7 @@ function moveCamera() {
             yearsTraveled -= Math.abs((0.5 * upDownValue * movementYearMultiplier));
             HUDtext = "Years Traveled: " + Math.round(yearsTraveled);
         }
-        //console.log(camera.position.z);
+        console.log(camera.position.z);
 
 
     }
